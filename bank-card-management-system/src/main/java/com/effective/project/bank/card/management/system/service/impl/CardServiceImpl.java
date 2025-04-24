@@ -10,28 +10,51 @@ import com.effective.project.bank.card.management.system.dto.response.Transactio
 import com.effective.project.bank.card.management.system.dto.response.UserCardsResponse;
 import com.effective.project.bank.card.management.system.entity.Card;
 import com.effective.project.bank.card.management.system.entity.Transaction;
+import com.effective.project.bank.card.management.system.entity.User;
 import com.effective.project.bank.card.management.system.exception.type.*;
 import com.effective.project.bank.card.management.system.repository.CardRepository;
 import com.effective.project.bank.card.management.system.repository.TransactionRepository;
 import com.effective.project.bank.card.management.system.repository.UserRepository;
 import com.effective.project.bank.card.management.system.service.CardService;
 import com.effective.project.bank.card.management.system.service.GammaEncryptionService;
+import com.effective.project.bank.card.management.system.utils.CardNumberGenerator;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
 public class CardServiceImpl implements CardService {
 
     private final CardRepository cardRepository;
+    private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
 
     private final GammaEncryptionService gammaEncryptionService;
+
+    @Override
+    @Transactional
+    public CardResponse createCard(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with such id: " + userId));
+
+        Card card = Card.builder()
+                .encryptedCardNumber(gammaEncryptionService.decrypt(CardNumberGenerator.generateCardNumber()))
+                .owner(user)
+                .expiryDate(LocalDate.now().plusYears(10))
+                .status("ACTIVE")
+                .build();
+
+        cardRepository.save(card);
+
+        return CardMapper.mapEntityToCardResponse(card);
+    }
 
     @Override
     public UserCardsResponse findUserCards(Long ownerId, Pageable pageable) {
@@ -39,7 +62,8 @@ public class CardServiceImpl implements CardService {
         Page<Card> cardsPage = cardRepository.findAllByOwnerId(ownerId, pageable);
 
         cardsPage.forEach(card -> {
-            card.setEncryptedCardNumber(gammaEncryptionService.maskCardNumber(gammaEncryptionService.decrypt(card.getEncryptedCardNumber())));
+            card.setEncryptedCardNumber(gammaEncryptionService.maskCardNumber(
+                    gammaEncryptionService.decrypt(card.getEncryptedCardNumber())));
         });
 
         return CardMapper.mapEntitiesToUserCardsResponse(cardsPage.getContent());
@@ -47,10 +71,26 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    public CardResponse blockCard(Long cardId) {
+    public CardResponse activateCard(Long cardId) {
 
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new EntityNotFoundException("Card not found."));
+
+        if(card.getStatus().equals("ACTIVE")) {
+            throw new CardAlreadyBlockedException("Card already active");
+        }
+
+        card.setStatus("ACTIVE");
+
+        return CardMapper.mapEntityToCardResponse(card);
+    }
+
+    @Override
+    @Transactional
+    public CardResponse blockCard(Long cardId) {
+
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new EntityNotFoundException("Card not found with such id: " + cardId));
 
         if(card.getStatus().equals("BLOCKED")) {
             throw new CardAlreadyBlockedException("Card already blocked");
@@ -70,10 +110,12 @@ public class CardServiceImpl implements CardService {
         }
 
         Card fromCard = cardRepository.findById(transferRequest.getFromCardId())
-                .orElseThrow(() -> new EntityNotFoundException("From-card not found with such id: " + transferRequest.getFromCardId()));
+                .orElseThrow(() -> new EntityNotFoundException("From-card not found with such id: "
+                        + transferRequest.getFromCardId()));
 
         Card toCard = cardRepository.findById(transferRequest.getToCardId())
-                .orElseThrow(() -> new EntityNotFoundException("To-card not found with such id: " + transferRequest.getToCardId()));
+                .orElseThrow(() -> new EntityNotFoundException("To-card not found with such id: "
+                        + transferRequest.getToCardId()));
 
         if (!fromCard.getOwner().getId().equals(userId)) {
             throw new CardsDoNotBelongToUserException("From-card does not belong to user");
@@ -109,8 +151,11 @@ public class CardServiceImpl implements CardService {
 
         TransactionResponse transactionResponse = TransactionMapper.mapEntityToTransactionResponse(transaction);
 
-        transactionResponse.setFromCardId(gammaEncryptionService.maskCardNumber(gammaEncryptionService.decrypt(transaction.getToCard().getEncryptedCardNumber())));
-        transactionResponse.setToCardId(gammaEncryptionService.maskCardNumber(gammaEncryptionService.decrypt(transaction.getToCard().getEncryptedCardNumber())));
+        transactionResponse.setFromCardId(gammaEncryptionService.maskCardNumber(
+                gammaEncryptionService.decrypt(transaction.getToCard().getEncryptedCardNumber())));
+
+        transactionResponse.setToCardId(gammaEncryptionService.maskCardNumber
+                (gammaEncryptionService.decrypt(transaction.getToCard().getEncryptedCardNumber())));
 
         return TransactionMapper.mapEntityToTransactionResponse(transaction);
     }
@@ -122,9 +167,19 @@ public class CardServiceImpl implements CardService {
                 .orElseThrow(() -> new EntityNotFoundException("Car not found with number: " + cardRequest.getCardNumber()));
 
         CardBalanceResponse cardBalanceResponse = CardMapper.mapEntityToCardBalanceResponse(card);
-        cardBalanceResponse.setEncryptedCardNumber(gammaEncryptionService.maskCardNumber(gammaEncryptionService.decrypt(card.getEncryptedCardNumber())));
+        cardBalanceResponse.setEncryptedCardNumber(gammaEncryptionService.maskCardNumber(
+                gammaEncryptionService.decrypt(card.getEncryptedCardNumber())));
 
         return cardBalanceResponse;
+    }
+
+    @Override
+    @Transactional
+    public Long deleteCardById(Long cardId) {
+
+        cardRepository.deleteById(cardId);
+
+        return cardId;
     }
 
 }

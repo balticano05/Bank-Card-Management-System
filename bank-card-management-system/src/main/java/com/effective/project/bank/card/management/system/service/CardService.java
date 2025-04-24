@@ -10,12 +10,18 @@ import org.springframework.data.domain.Pageable;
 
 public interface CardService {
 
+    CardResponse createCard(Long userId);
+
     UserCardsResponse findUserCards(Long userId, Pageable pageable);
+
+    CardResponse activateCard(Long cardId);
 
     CardResponse blockCard(Long cardId);
 
     TransactionResponse transferBetweenCards(Long userId, TransferRequest transferRequest);
 
     CardBalanceResponse findCardBalanceByCardNumber(CardRequest cardRequest);
+
+    Long deleteCardById(Long cardId);
 
 }

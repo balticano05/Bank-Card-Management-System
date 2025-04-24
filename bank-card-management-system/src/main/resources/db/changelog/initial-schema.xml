@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd"
+        logicalFilePath="db/changelog">
+
+    <changeSet id="initial-roles" author="Aleks">
+        <sqlFile encoding="utf8" path="./initial-schema/01.create-roles-table.sql"
+                 relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <changeSet id="initial-users" author="Aleks">
+        <sqlFile encoding="utf8" path="./initial-schema/02.create-users-table.sql"
+                 relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <changeSet id="initial-users-roles" author="Aleks">
+        <sqlFile encoding="utf8" path="./initial-schema/03.create-users-roles-table.sql"
+                 relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <changeSet id="initial-cards" author="Aleks">
+        <sqlFile encoding="utf8" path="./initial-schema/04.create-cards-table.sql"
+                 relativeToChangelogFile="true"/>
+    </changeSet>
+
+    <changeSet id="initial-transactions" author="Aleks">
+        <sqlFile encoding="utf8" path="./initial-schema/05.create-transactions-table.sql"
+                 relativeToChangelogFile="true"/>
+    </changeSet>
+
+</databaseChangeLog>

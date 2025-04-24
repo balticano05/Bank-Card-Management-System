@@ -19,7 +19,7 @@ public class CustomUserDetails implements UserDetails {
         email = user.getEmail();
         password = user.getPassword();
         authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_"+role.getName()))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toList());
     }
 

@@ -4,6 +4,7 @@ import com.effective.project.bank.card.management.system.dto.request.UserUpdateR
 import com.effective.project.bank.card.management.system.dto.response.UserUpdateResponse;
 import com.effective.project.bank.card.management.system.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -13,7 +14,8 @@ public class UserController {
 
     private final UserService userService;
 
-    @PutMapping("/users/{userId}")
+    @PutMapping("/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public UserUpdateResponse updateUser(
             @PathVariable Long userId,
             @RequestBody UserUpdateRequest userUpdateRequest
@@ -21,7 +23,8 @@ public class UserController {
         return userService.updateUser(userId, userUpdateRequest);
     }
 
-    @DeleteMapping("/users/{userId}")
+    @DeleteMapping("/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public Long deleteUser(@PathVariable Long userId) {
         return userService.deleteUser(userId);
     }

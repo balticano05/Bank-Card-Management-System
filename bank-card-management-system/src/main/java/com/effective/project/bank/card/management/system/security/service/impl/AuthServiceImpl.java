@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
     @Override
@@ -32,15 +34,14 @@ public class AuthServiceImpl implements AuthService {
 
         User user = User.builder()
                 .email(userRegisterRequest.getEmail())
-                .password(userRegisterRequest.getPassword())
+                .password(passwordEncoder.encode(userRegisterRequest.getPassword()))
                 .fullName(userRegisterRequest.getFullName())
                 .roles(roleRepository.findByName("USER"))
                 .build();
 
         userRepository.save(user);
 
-        String jwtToken = jwtService.generateToken(user.getEmail());
-
+        String jwtToken = jwtService.generateToken(user.getEmail(), user.getRoles());
 
         return UserRegisterResponse.builder()
                 .token(jwtToken)
@@ -60,8 +61,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(userAuthRequest.getEmail())
                 .orElseThrow(() -> new EntityNotFoundException("User not found with name: " + userAuthRequest.getEmail()));
 
-        String jwtToken = jwtService.generateToken(user.getEmail());
-
+        String jwtToken = jwtService.generateToken(user.getEmail(), user.getRoles());
 
         return UserAuthResponse.builder()
                 .token(jwtToken)

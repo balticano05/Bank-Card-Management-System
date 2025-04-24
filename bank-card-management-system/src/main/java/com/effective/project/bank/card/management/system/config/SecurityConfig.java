@@ -49,9 +49,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/authenticate"
                         ).permitAll();
 
-                    }).authorizeHttpRequests(authFilter -> {
-                        authFilter
-                                .requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasAnyRole("ADMIN", "USER");
+                        authFilter.requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasRole("ADMIN")
+                        .anyRequest().authenticated();
 
                     })
                     .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

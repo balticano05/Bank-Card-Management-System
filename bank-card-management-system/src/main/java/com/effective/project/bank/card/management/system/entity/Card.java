@@ -52,14 +52,4 @@ public class Card {
     @OneToMany(mappedBy = "toCard", fetch = FetchType.LAZY)
     private List<Transaction> receivedTransactions;
 
-    public void addSentTransaction(Transaction transaction) {
-        sentTransactions.add(transaction);
-        transaction.setFromCard(this);
-    }
-
-    public void addReceivedTransaction(Transaction transaction) {
-        receivedTransactions.add(transaction);
-        transaction.setToCard(this);
-    }
-
 }

@@ -45,9 +45,4 @@ public class User {
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
     private List<Card> cards;
 
-    public void addCard(Card card) {
-        cards.add(card);
-        card.setOwner(this);
-    }
-
 }

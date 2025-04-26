@@ -20,14 +20,14 @@ public class Transaction {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from_card_id", nullable = false)
+    @JoinColumn(name = "from_card_id")
     private Card fromCard;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_card_id", nullable = false)
+    @JoinColumn(name = "to_card_id")
     private Card toCard;
 
-    @Column(nullable = false)
+    @Column(name = "amount")
     private Long amount;
 
     @CreationTimestamp

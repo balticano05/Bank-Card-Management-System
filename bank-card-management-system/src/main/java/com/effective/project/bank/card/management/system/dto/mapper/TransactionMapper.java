@@ -9,8 +9,8 @@ public class TransactionMapper {
         return TransactionResponse.builder()
                 .id(source.getId())
                 .amount(source.getAmount())
-                .fromCardId(source.getFromCard().getEncryptedCardNumber())
-                .toCardId(source.getToCard().getEncryptedCardNumber())
+                .fromCard(source.getFromCard().getEncryptedCardNumber())
+                .toCard(source.getToCard().getEncryptedCardNumber())
                 .createdAt(source.getCreatedAt())
                 .build();
     }

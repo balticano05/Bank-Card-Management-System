@@ -39,14 +39,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             String authHeader = request.getHeader("Authorization");
 
-            log.info("Authorization header: {}", authHeader);
-
             final String token;
             String login;
 
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 
-                log.warn("No Bearer token found in Authorization header");
+                log.warn("No Bearer token found in request");
 
                 filterChain.doFilter(request, response);
                 return;
@@ -55,20 +53,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             token = authHeader.substring(7);
             login = jwtService.extractLogin(token);
 
-            log.info("Extracted login from token: {}", login);
-
             if (login == null) {
 
-                log.error("Invalid token structure - no login extracted");
+                log.error("Invalid token structure");
 
                 throw new AuthenticationFailedException("Invalid token structure");
             }
 
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(login);
+                log.info("Validating token for user: {}", login);
 
-                log.info("Loaded user details with authorities: {}", userDetails.getAuthorities());
+                UserDetails userDetails = userDetailsService.loadUserByUsername(login);
 
                 if (!jwtService.validateToken(token, userDetails)) {
 
@@ -81,22 +77,27 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         userDetails, null, userDetails.getAuthorities()
                 );
 
-                log.info("Created authentication token with authorities: {}", authenticationToken.getAuthorities());
-
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-                log.info("Authentication set in SecurityContext");
+                log.info("User authenticated successfully: {}", login);
+
             }
 
             filterChain.doFilter(request, response);
 
         } catch (MissingTokenException | AuthenticationFailedException e) {
 
+            log.error("Authentication error: {}", e.getMessage(), e);
+
             throw e;
         } catch (IOException e) {
 
+            log.error("I/O error occurred in JWT filter: {}", e.getMessage(), e);
+
             throw new CustomIOException("I/O error occurred in jwt filter: " + e.getMessage());
         } catch (ServletException e) {
+
+            log.error("Servlet error occurred in JWT filter: {}", e.getMessage(), e);
 
             throw new CustomServletException("Servlet error occurred in jwt filter: " + e.getMessage());
         }

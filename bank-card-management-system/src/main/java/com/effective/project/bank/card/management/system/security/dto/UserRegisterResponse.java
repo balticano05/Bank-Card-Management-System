@@ -2,8 +2,6 @@ package com.effective.project.bank.card.management.system.security.dto;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @Builder

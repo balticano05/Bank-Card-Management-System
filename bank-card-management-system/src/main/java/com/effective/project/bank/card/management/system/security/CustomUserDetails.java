@@ -1,6 +1,7 @@
 package com.effective.project.bank.card.management.system.security;
 
 import com.effective.project.bank.card.management.system.entity.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,11 +12,14 @@ import java.util.stream.Collectors;
 
 public class CustomUserDetails implements UserDetails {
 
+    @Getter
+    private final Long id;
     private final String email;
     private final String password;
     private final List<GrantedAuthority> authorities;
 
     public CustomUserDetails(User user) {
+        id = user.getId();
         email = user.getEmail();
         password = user.getPassword();
         authorities = user.getRoles().stream()

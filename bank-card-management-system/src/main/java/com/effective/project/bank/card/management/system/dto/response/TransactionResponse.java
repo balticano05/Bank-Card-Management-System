@@ -13,9 +13,9 @@ public class TransactionResponse {
 
     private Long id;
 
-    private String fromCardId;
+    private String fromCard;
 
-    private String toCardId;
+    private String toCard;
 
     private Long amount;
 

@@ -1,6 +1,5 @@
 package com.effective.project.bank.card.management.system.security.service.impl;
 
-import com.effective.project.bank.card.management.system.entity.Role;
 import com.effective.project.bank.card.management.system.security.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -14,7 +13,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -29,15 +30,15 @@ public class JwtServiceImpl implements JwtService {
     private long expirationTime;
 
     @Override
-    public String generateToken(String email, Set<Role> roles) {
+    public String generateToken(UserDetails userDetails) {
 
         Map<String, Object> claims = new HashMap<>();
 
-        claims.put("roles", roles.stream()
-                .map(r -> "ROLE_" + r.getName())
+        claims.put("roles", userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
 
-        return createToken(claims, email);
+        return createToken(claims, userDetails.getUsername());
     }
 
     private String createToken(Map<String, Object> claims, String username) {

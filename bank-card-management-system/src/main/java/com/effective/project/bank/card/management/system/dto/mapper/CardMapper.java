@@ -12,14 +12,14 @@ import java.util.stream.Collectors;
 
 public class CardMapper {
 
-    public static CardBalanceResponse mapEntityToCardBalanceResponse(Card source){
+    public static CardBalanceResponse mapEntityToCardBalanceResponse(Card source) {
         return CardBalanceResponse.builder()
                 .encryptedCardNumber(source.getEncryptedCardNumber())
                 .amount(source.getBalance())
                 .build();
     }
 
-    public static CardResponse mapEntityToCardResponse(Card source){
+    public static CardResponse mapEntityToCardResponse(Card source) {
         return CardResponse.builder()
                 .card(mapEntityToCardDto(source))
                 .build();
@@ -33,7 +33,7 @@ public class CardMapper {
 
     public static List<CardDto> mapEntitiesToCardDtoList(List<Card> source) {
 
-        if(source == null) return new ArrayList<>();
+        if (source == null) return new ArrayList<>();
 
         return source.stream()
                 .map(CardMapper::mapEntityToCardDto)

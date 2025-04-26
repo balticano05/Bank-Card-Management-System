@@ -9,12 +9,13 @@ import com.effective.project.bank.card.management.system.security.dto.UserRegist
 import com.effective.project.bank.card.management.system.security.dto.UserRegisterResponse;
 import com.effective.project.bank.card.management.system.security.service.AuthService;
 import com.effective.project.bank.card.management.system.security.service.JwtService;
-import com.effective.project.bank.card.management.system.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserDetailsService userDetailsService;
     private final AuthenticationManager authenticationManager;
 
     @Override
@@ -41,7 +43,9 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        String jwtToken = jwtService.generateToken(user.getEmail(), user.getRoles());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+
+        String jwtToken = jwtService.generateToken(userDetails);
 
         return UserRegisterResponse.builder()
                 .token(jwtToken)
@@ -61,7 +65,9 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(userAuthRequest.getEmail())
                 .orElseThrow(() -> new EntityNotFoundException("User not found with name: " + userAuthRequest.getEmail()));
 
-        String jwtToken = jwtService.generateToken(user.getEmail(), user.getRoles());
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+
+        String jwtToken = jwtService.generateToken(userDetails);
 
         return UserAuthResponse.builder()
                 .token(jwtToken)

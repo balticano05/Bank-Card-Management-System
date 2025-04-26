@@ -12,8 +12,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,19 +25,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         log.info("Loading user by email: {}", email);
 
-        Optional<User> user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("Card not found."));
 
-        return user.map(u -> {
-
-            log.info("Found user with roles: {}", u.getRoles());
-
-            return new CustomUserDetails(u);
-        }).orElseThrow(() -> {
-
-            log.error("User not found with email: {}", email);
-
-            return new EntityNotFoundException("User not found with name: " + email);
-        });
+        return new CustomUserDetails(user);
     }
 
 }

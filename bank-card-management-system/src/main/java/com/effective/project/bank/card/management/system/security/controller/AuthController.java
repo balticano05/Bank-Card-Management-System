@@ -1,8 +1,8 @@
 package com.effective.project.bank.card.management.system.security.controller;
 
 import com.effective.project.bank.card.management.system.security.dto.UserAuthRequest;
-import com.effective.project.bank.card.management.system.security.dto.UserRegisterRequest;
 import com.effective.project.bank.card.management.system.security.dto.UserAuthResponse;
+import com.effective.project.bank.card.management.system.security.dto.UserRegisterRequest;
 import com.effective.project.bank.card.management.system.security.dto.UserRegisterResponse;
 import com.effective.project.bank.card.management.system.security.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class AuthController {
         return authService.register(userRegisterRequest);
     }
 
-    @GetMapping("/authenticate")
+    @PostMapping("/authenticate")
     public UserAuthResponse authenticate(@RequestBody UserAuthRequest userAuthRequest) {
         return authService.authenticate(userAuthRequest);
     }

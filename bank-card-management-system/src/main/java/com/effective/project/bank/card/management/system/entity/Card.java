@@ -7,7 +7,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,21 +22,21 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "encrypted_card_number", nullable = false)
+    @Column(name = "encrypted_card_number")
     private String encryptedCardNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
+    @JoinColumn(name = "owner_id")
     private User owner;
 
-    @Column(name = "expiry_date", nullable = false)
+    @Column(name = "expiry_date")
     private LocalDate expiryDate;
 
-    @Column(nullable = false)
+    @Column(name = "status")
     private String status;
 
-    @Column(nullable = false)
-    private Long balance = 0L;
+    @Column(name = "balance")
+    private Long balance;
 
     @CreationTimestamp
     @Column(name = "created_at")
@@ -48,10 +47,10 @@ public class Card {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "fromCard", fetch = FetchType.LAZY)
-    private List<Transaction> sentTransactions = new ArrayList<>();
+    private List<Transaction> sentTransactions;
 
     @OneToMany(mappedBy = "toCard", fetch = FetchType.LAZY)
-    private List<Transaction> receivedTransactions = new ArrayList<>();
+    private List<Transaction> receivedTransactions;
 
     public void addSentTransaction(Transaction transaction) {
         sentTransactions.add(transaction);

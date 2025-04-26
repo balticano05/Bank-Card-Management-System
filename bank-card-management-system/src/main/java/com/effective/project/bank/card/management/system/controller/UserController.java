@@ -15,7 +15,7 @@ public class UserController {
     private final UserService userService;
 
     @PutMapping("/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public UserUpdateResponse updateUser(
             @PathVariable Long userId,
             @RequestBody UserUpdateRequest userUpdateRequest
@@ -24,7 +24,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public Long deleteUser(@PathVariable Long userId) {
         return userService.deleteUser(userId);
     }

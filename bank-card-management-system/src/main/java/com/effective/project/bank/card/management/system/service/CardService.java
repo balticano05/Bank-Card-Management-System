@@ -7,6 +7,7 @@ import com.effective.project.bank.card.management.system.dto.response.CardBalanc
 import com.effective.project.bank.card.management.system.dto.response.CardResponse;
 import com.effective.project.bank.card.management.system.dto.response.TransactionResponse;
 import com.effective.project.bank.card.management.system.dto.response.UserCardsResponse;
+import com.effective.project.bank.card.management.system.entity.Card;
 import org.springframework.data.domain.Pageable;
 
 public interface CardService {
@@ -26,5 +27,7 @@ public interface CardService {
     CardResponse blockCard(Long cardId);
 
     Long deleteCardById(Long cardId);
+
+    void checkAndUpdateExpiry(Card card);
 
 }

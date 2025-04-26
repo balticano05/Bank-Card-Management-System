@@ -228,7 +228,7 @@ public class CardServiceImpl implements CardService {
         return "**** **** **** " + cardNumber.substring(cardNumber.length() - 4);
     }
 
-    private void checkAndUpdateExpiry(Card card) {
+    public void checkAndUpdateExpiry(Card card) {
 
         if (LocalDate.now().isAfter(card.getExpiryDate())) {
 
